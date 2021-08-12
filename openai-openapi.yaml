@@ -1,0 +1,1467 @@
+---
+openapi: 3.0.3
+info:
+  title: OpenAI
+  description: "OpenAI API\n\nThis OpenAPI document was written based on the api documentation available [here](https://beta.openai.com/docs/api-reference/introduction).\n\nIt is currently maintained by [Showcase](https://getshowcase.io/).\n\nThe source code for this document can be found [here](https://github.com/showcasejobs/open-api).\n\n**NOTE** The naming can appear confusing, as they are _very_ similar. `OpenAI` (no `P`) is the \"GPT-3 as a service\" AI platform. `OpenAPI` (with a `P`) is a structured and machine-friendly way of defining RESTful API services.\n"
+  version: 1.0.0
+  contact: {}
+servers:
+  - url: "https://api.openai.com/v1"
+paths:
+  /answers:
+    post:
+      tags:
+        - Answers
+      summary: Create answer
+      description: "Answers the specified question using the provided documents and examples.\n\nThe endpoint first [searches](https://beta.openai.com/docs/api-reference/searches) over provided documents or files to find relevant context.\nThe relevant context is combined with the provided examples and question to create the prompt for [completion](https://beta.openai.com/docs/api-reference/completions).\n\n[See More](https://beta.openai.com/docs/api-reference/classifications/create)\n"
+      operationId: createAnswer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documents:
+                  type: array
+                  items:
+                    type: string
+                    example: Puppy A is happy.
+                  example:
+                    - Puppy A is happy.
+                    - Puppy B is sad.
+                examples:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: string
+                      example: What is human life expectancy in the United States?
+                    example:
+                      - What is human life expectancy in the United States?
+                      - 78 years.
+                  example:
+                    - - What is human life expectancy in the United States?
+                      - 78 years.
+                examples_context:
+                  type: string
+                  example: "In 2017, U.S. life expectancy was 78.6 years."
+                max_tokens:
+                  type: number
+                  example: 5
+                model:
+                  type: string
+                  example: curie
+                question:
+                  type: string
+                  example: which puppy is happy?
+                search_model:
+                  type: string
+                  example: ada
+                stop:
+                  type: array
+                  items:
+                    type: string
+                    example: "\n"
+                  example:
+                    - "\n"
+                    - "<|endoftext|>"
+            example:
+              documents:
+                - Puppy A is happy.
+                - Puppy B is sad.
+              examples:
+                - - What is human life expectancy in the United States?
+                  - 78 years.
+              examples_context: "In 2017, U.S. life expectancy was 78.6 years."
+              max_tokens: 5
+              model: curie
+              question: which puppy is happy?
+              search_model: ada
+              stop:
+                - "\n"
+                - "<|endoftext|>"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answers:
+                    type: array
+                    items:
+                      type: string
+                      example: puppy A.
+                    example:
+                      - puppy A.
+                  completion:
+                    type: string
+                    example: cmpl-2euVa1kmKUuLpSX600M41125Mo9NI
+                  model:
+                    type: string
+                    example: "curie:2020-05-03"
+                  object:
+                    type: string
+                    example: answer
+                  search_model:
+                    type: string
+                    example: ada
+                  selected_documents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        document:
+                          type: number
+                          example: 0
+                        text:
+                          type: string
+                          example: "Puppy A is happy. "
+                    example:
+                      - document: 0
+                        text: "Puppy A is happy. "
+                      - document: 1
+                        text: "Puppy B is sad. "
+              examples:
+                Ok:
+                  value:
+                    answers:
+                      - puppy A.
+                    completion: cmpl-2euVa1kmKUuLpSX600M41125Mo9NI
+                    model: "curie:2020-05-03"
+                    object: answer
+                    search_model: ada
+                    selected_documents:
+                      - document: 0
+                        text: "Puppy A is happy. "
+                      - document: 1
+                        text: "Puppy B is sad. "
+  /classifications:
+    post:
+      tags:
+        - Classifications
+      summary: Create classification
+      description: "Classifies the specified query using provided examples.\n\nThe endpoint first [searches](https://beta.openai.com/docs/api-reference/searches) over the labeled examples to select the ones most relevant for the particular query.\nThen, the relevant examples are combined with the query to construct a prompt to produce the final label via the [completions](https://beta.openai.com/docs/api-reference/completions) endpoint.\n\nLabeled examples can be provided via an uploaded file, or explicitly listed in the request using the examples parameter for quick tests and small scale use cases.\n\n[See More](https://beta.openai.com/docs/api-reference/classifications/create)\n"
+      operationId: createClassification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                examples:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: string
+                      example: A happy moment
+                    example:
+                      - A happy moment
+                      - Positive
+                  example:
+                    - - A happy moment
+                      - Positive
+                    - - I am sad.
+                      - Negative
+                    - - I am feeling awesome
+                      - Positive
+                labels:
+                  type: array
+                  items:
+                    type: string
+                    example: Positive
+                  example:
+                    - Positive
+                    - Negative
+                    - Neutral
+                model:
+                  type: string
+                  example: curie
+                query:
+                  type: string
+                  example: "It is a raining day :("
+                search_model:
+                  type: string
+                  example: ada
+            example:
+              examples:
+                - - A happy moment
+                  - Positive
+                - - I am sad.
+                  - Negative
+                - - I am feeling awesome
+                  - Positive
+              labels:
+                - Positive
+                - Negative
+                - Neutral
+              model: curie
+              query: "It is a raining day :("
+              search_model: ada
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  completion:
+                    type: string
+                    example: cmpl-2euN7lUVZ0d4RKbQqRV79IiiE6M1f
+                  label:
+                    type: string
+                    example: Negative
+                  model:
+                    type: string
+                    example: "curie:2020-05-03"
+                  object:
+                    type: string
+                    example: classification
+                  search_model:
+                    type: string
+                    example: ada
+                  selected_examples:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        document:
+                          type: number
+                          example: 1
+                        label:
+                          type: string
+                          example: Negative
+                        text:
+                          type: string
+                          example: I am sad.
+                    example:
+                      - document: 1
+                        label: Negative
+                        text: I am sad.
+                      - document: 0
+                        label: Positive
+                        text: A happy moment
+                      - document: 2
+                        label: Positive
+                        text: I am feeling awesome
+              examples:
+                Ok:
+                  value:
+                    completion: cmpl-2euN7lUVZ0d4RKbQqRV79IiiE6M1f
+                    label: Negative
+                    model: "curie:2020-05-03"
+                    object: classification
+                    search_model: ada
+                    selected_examples:
+                      - document: 1
+                        label: Negative
+                        text: I am sad.
+                      - document: 0
+                        label: Positive
+                        text: A happy moment
+                      - document: 2
+                        label: Positive
+                        text: I am feeling awesome
+  /engines:
+    get:
+      tags:
+        - Engines
+      summary: List engines
+      description: "Lists the currently available engines, and provides basic information about each one such as the owner and availability.\n\n[See More](https://beta.openai.com/docs/api-reference/engines/list)\n"
+      operationId: listEngines
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    created:
+                      type: number
+                      example: 1624492800
+                    id:
+                      type: string
+                      example: davinci
+                    max_replicas:
+                      type: number
+                      example: 66225769
+                    object:
+                      type: string
+                      example: engine
+                    owner:
+                      type: string
+                      example: openai
+                    ready:
+                      type: boolean
+                      example: true
+                    ready_replicas:
+                      type: boolean
+                      example: true
+                example:
+                  - created: 1624492800
+                    id: davinci
+                    max_replicas: 66225769
+                    object: engine
+                    owner: openai
+                    ready: true
+                    ready_replicas: true
+                  - created: 1624492800
+                    id: davinci
+                    max_replicas: -92918205
+                    object: engine
+                    owner: openai
+                    ready: false
+                    ready_replicas: true
+              examples:
+                Ok:
+                  value:
+                    - created: 1624492800
+                      id: davinci
+                      max_replicas: 66225769
+                      object: engine
+                      owner: openai
+                      ready: true
+                      ready_replicas: true
+                    - created: 1624492800
+                      id: davinci
+                      max_replicas: -92918205
+                      object: engine
+                      owner: openai
+                      ready: false
+                      ready_replicas: true
+  "/engines/{engineId}":
+    get:
+      tags:
+        - Engines
+      summary: Retrieve engine
+      description: "Retrieves an engine instance, providing basic information about the engine such as the owner and availability.\n\n[See More](https://beta.openai.com/docs/api-reference/engines/retrieve)\n"
+      operationId: retrieveEngine
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created:
+                    type: number
+                    example: 1624492800
+                  id:
+                    type: string
+                    example: davinci
+                  max_replicas:
+                    type: number
+                    example: 75121544
+                  object:
+                    type: string
+                    example: engine
+                  owner:
+                    type: string
+                    example: openai
+                  ready:
+                    type: boolean
+                    example: false
+                  ready_replicas:
+                    type: boolean
+                    example: false
+              examples:
+                Ok:
+                  value:
+                    created: 1624492800
+                    id: davinci
+                    max_replicas: 75121544
+                    object: engine
+                    owner: openai
+                    ready: false
+                    ready_replicas: false
+    parameters:
+      - name: engineId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: davinci
+        description: "(Required) The ID of the engine to use for this request.\n"
+  "/engines/{engineId}/completions":
+    post:
+      tags:
+        - Completions
+      summary: Create completion
+      description: "**Important**: This experimental endpoint is intended for use in browsers. Please **do not** expose your secret key in your client code.\n\nStream generated text from the model via `GET` request. This method is provided because the browser-native EventSource method can only send `GET` requests. It supports a more limited set of configuration options than the `POST` variant.\n\nIf you'd like to stream results from the POST variant in your browser, consider using the [SSE library](https://github.com/mpetazzoni/sse.js)."
+      operationId: createCompletion
+      parameters:
+        - name: prompt
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "(Optional) The prompt to complete from. If you would like to provide multiple prompts, use the POST variant of this method.\n\nNote that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document."
+        - name: max_tokens
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: (Optional) The maximum number of tokens to generate. Requests can use up to 2048 tokens shared between prompt and completion. (One token is roughly 4 characters for normal English text)
+        - name: temperature
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.\n\nWe generally recommend altering this or top_p but not both."
+        - name: top_p
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.\n\nWe generally recommend altering this or temperature but not both."
+        - name: n
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) How many completions to generate for each prompt.\n\nNote: Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop."
+        - name: logprobs
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: "(Optional) Include the log probabilities on the logprobs most likely tokens, as well the chosen tokens. For example, if logprobs is 10, the API will return a list of the 10 most likely tokens. the API will always return the logprob of the sampled token, so there may be up to logprobs+1 elements in the response."
+        - name: stop
+          in: query
+          required: false
+          schema:
+            type: array
+          description: (Optional) Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
+        - name: echo
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: (Optional) Echo back the prompt in addition to the completion
+        - name: presence_penalty
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) Number between 0 and 1 that penalizes new tokens based on whether they appear in the text so far. Increases the model's likelihood to talk about new topics."
+        - name: frequency_penalty
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) Number between 0 and 1 that penalizes new tokens based on their existing frequency in the text so far. Decreases the model's likelihood to repeat the same line verbatim."
+        - name: best_of
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: "(Optional) Generates best_of completions server-side and returns the \"best\" (the one with the lowest log probability per token). Results cannot be streamed.\n\nWhen used with n, best_of controls the number of candidate completions and n specifies how many to return – best_of must be greater than n.\n\nNote: Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop."
+        - name: logit_bias
+          in: query
+          required: false
+          schema:
+            type: object
+          description: "(Optional) Modify the likelihood of specified tokens appearing in the completion.\n\nAccepts a json object that maps tokens (specified by their token ID in the GPT tokenizer) to an associated bias value from -100 to 100. You can use this tokenizer tool (which works for both GPT-2 and GPT-3) to convert text to token IDs. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token.\n\nAs an example, you can pass {\"50256\": -100} to prevent the <|endoftext|> token from being generated."
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  choices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        finish_reason:
+                          type: string
+                          example: length
+                        index:
+                          type: number
+                          example: 0
+                        logprobs:
+                          nullable: true
+                          example: ~
+                        text:
+                          type: string
+                          example: " there was a girl who"
+                    example:
+                      - finish_reason: length
+                        index: 0
+                        logprobs: ~
+                        text: " there was a girl who"
+                  created:
+                    type: number
+                    example: 1589478378
+                  id:
+                    type: string
+                    example: cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7
+                  model:
+                    type: string
+                    example: "davinci:2020-05-03"
+                  object:
+                    type: string
+                    example: text_completion
+              examples:
+                Ok:
+                  value:
+                    choices:
+                      - finish_reason: length
+                        index: 0
+                        logprobs: ~
+                        text: " there was a girl who"
+                    created: 1589478378
+                    id: cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7
+                    model: "davinci:2020-05-03"
+                    object: text_completion
+    parameters:
+      - name: engineId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: davinci
+        description: "(Required) The ID of the engine to use for this request.\n"
+  "/engines/{engineId}/completions/browser_stream":
+    get:
+      tags:
+        - Completions
+      summary: Create completion via GET
+      description: "**Important**: This experimental endpoint is intended for use in browsers. Please **do not** expose your secret key in your client code.\n\nStream generated text from the model via `GET` request. This method is provided because the browser-native EventSource method can only send `GET` requests. It supports a more limited set of configuration options than the `POST` variant.\n\nIf you'd like to stream results from the POST variant in your browser, consider using the [SSE library](https://github.com/mpetazzoni/sse.js)."
+      operationId: createCompletionViaGet
+      parameters:
+        - name: prompt
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "(Optional) The prompt to complete from. If you would like to provide multiple prompts, use the POST variant of this method.\n\nNote that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document."
+        - name: max_tokens
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: (Optional) The maximum number of tokens to generate. Requests can use up to 2048 tokens shared between prompt and completion. (One token is roughly 4 characters for normal English text)
+        - name: temperature
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.\n\nWe generally recommend altering this or top_p but not both."
+        - name: top_p
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.\n\nWe generally recommend altering this or temperature but not both."
+        - name: n
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) How many completions to generate for each prompt.\n\nNote: Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop."
+        - name: logprobs
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: "(Optional) Include the log probabilities on the logprobs most likely tokens, as well the chosen tokens. For example, if logprobs is 10, the API will return a list of the 10 most likely tokens. the API will always return the logprob of the sampled token, so there may be up to logprobs+1 elements in the response."
+        - name: stop
+          in: query
+          required: false
+          schema:
+            type: array
+          description: (Optional) Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
+        - name: echo
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: (Optional) Echo back the prompt in addition to the completion
+        - name: presence_penalty
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) Number between 0 and 1 that penalizes new tokens based on whether they appear in the text so far. Increases the model's likelihood to talk about new topics."
+        - name: frequency_penalty
+          in: query
+          required: false
+          schema:
+            type: number
+          description: "(Optional) Number between 0 and 1 that penalizes new tokens based on their existing frequency in the text so far. Decreases the model's likelihood to repeat the same line verbatim."
+        - name: best_of
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: "(Optional) Generates best_of completions server-side and returns the \"best\" (the one with the lowest log probability per token). Results cannot be streamed.\n\nWhen used with n, best_of controls the number of candidate completions and n specifies how many to return – best_of must be greater than n.\n\nNote: Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop."
+        - name: logit_bias
+          in: query
+          required: false
+          schema:
+            type: object
+          description: "(Optional) Modify the likelihood of specified tokens appearing in the completion.\n\nAccepts a json object that maps tokens (specified by their token ID in the GPT tokenizer) to an associated bias value from -100 to 100. You can use this tokenizer tool (which works for both GPT-2 and GPT-3) to convert text to token IDs. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token.\n\nAs an example, you can pass {\"50256\": -100} to prevent the <|endoftext|> token from being generated."
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  choices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        finish_reason:
+                          nullable: true
+                          example: ~
+                        index:
+                          type: number
+                          example: 0
+                        logprobs:
+                          nullable: true
+                          example: ~
+                        text:
+                          type: string
+                          example: ","
+                    example:
+                      - finish_reason: ~
+                        index: 0
+                        logprobs: ~
+                        text: ","
+                  created:
+                    type: number
+                    example: 1592103423
+                  id:
+                    type: string
+                    example: cmpl-GxetY7rxbQDVuGoMhX19c8Qy
+                  model:
+                    type: string
+                    example: "davinci:2020-05-03"
+                  object:
+                    type: string
+                    example: text_completion
+              examples:
+                Ok:
+                  value:
+                    choices:
+                      - finish_reason: ~
+                        index: 0
+                        logprobs: ~
+                        text: ","
+                    created: 1592103423
+                    id: cmpl-GxetY7rxbQDVuGoMhX19c8Qy
+                    model: "davinci:2020-05-03"
+                    object: text_completion
+    parameters:
+      - name: engineId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: davinci
+        description: "(Required) The ID of the engine to use for this request.\n"
+  "/engines/{engineId}/search":
+    post:
+      tags:
+        - Searches
+      summary: Create search
+      description: "The search endpoint computes similarity scores between provided query and documents.\nDocuments can be passed directly to the API if there are no more than 200 of them.\n\nTo go beyond the 200 document limit, documents can be processed offline and then used for efficient retrieval at query time.\nWhen `file` is set, the search endpoint searches over all the documents in the given file and returns up to the `max_rerank` number of documents.\nThese documents will be returned along with their search scores.\n\nThe similarity score is a positive score that usually ranges from 0 to 300 (but can sometimes go higher), where a score above 200 usually means the document is semantically similar to the query.\n\n[See More](https://beta.openai.com/docs/api-reference/searches/create)\n"
+      operationId: createSearch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documents:
+                  type: array
+                  items:
+                    type: string
+                    example: White House
+                  example:
+                    - White House
+                    - hospital
+                    - school
+                query:
+                  type: string
+                  example: the president
+            example:
+              documents:
+                - White House
+                - hospital
+                - school
+              query: the president
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        document:
+                          type: number
+                          example: 0
+                        object:
+                          type: string
+                          example: search_result
+                        score:
+                          type: number
+                          example: 215.412
+                    example:
+                      - document: 0
+                        object: search_result
+                        score: 215.412
+                      - document: 1
+                        object: search_result
+                        score: 40.316
+                      - document: 2
+                        object: search_result
+                        score: 55.226
+                  object:
+                    type: string
+                    example: list
+              examples:
+                Ok:
+                  value:
+                    data:
+                      - document: 0
+                        object: search_result
+                        score: 215.412
+                      - document: 1
+                        object: search_result
+                        score: 40.316
+                      - document: 2
+                        object: search_result
+                        score: 55.226
+                    object: list
+    parameters:
+      - name: engineId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: davinci
+        description: "(Required) The ID of the engine to use for this request.\n"
+  /files:
+    get:
+      tags:
+        - Files
+      summary: List files
+      description: "Returns a list of files that belong to the user's organization.\n\n[See More](https://beta.openai.com/docs/api-reference/files/list)\n"
+      operationId: listFiles
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bytes:
+                          type: number
+                          example: 175
+                        created_at:
+                          type: number
+                          example: 1613677385
+                        filename:
+                          type: string
+                          example: train.jsonl
+                        id:
+                          type: string
+                          example: file-ccdDZrC3iZVNiQVeEA6Z66wf
+                        object:
+                          type: string
+                          example: file
+                        purpose:
+                          type: string
+                          example: search
+                    example:
+                      - bytes: 175
+                        created_at: 1613677385
+                        filename: train.jsonl
+                        id: file-ccdDZrC3iZVNiQVeEA6Z66wf
+                        object: file
+                        purpose: search
+                      - bytes: 140
+                        created_at: 1613779121
+                        filename: puppy.jsonl
+                        id: file-XjGxS3KTG0uNmNOK362iJua3
+                        object: file
+                        purpose: search
+                  object:
+                    type: string
+                    example: list
+              examples:
+                Ok:
+                  value:
+                    data:
+                      - bytes: 175
+                        created_at: 1613677385
+                        filename: train.jsonl
+                        id: file-ccdDZrC3iZVNiQVeEA6Z66wf
+                        object: file
+                        purpose: search
+                      - bytes: 140
+                        created_at: 1613779121
+                        filename: puppy.jsonl
+                        id: file-XjGxS3KTG0uNmNOK362iJua3
+                        object: file
+                        purpose: search
+                    object: list
+    post:
+      tags:
+        - Files
+      summary: Upload file
+      description: "Upload a file that contains document(s) to be used across various endpoints/features.\nCurrently, the size of all the files uploaded by one organization can be up to 1 GB.\nPlease contact us if you need to increase the storage limit.\n\n[See More](https://beta.openai.com/docs/api-reference/files/upload)\n"
+      operationId: uploadFile
+      requestBody:
+        content:
+          application/octet-stream: {}
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bytes:
+                    type: number
+                    example: 140
+                  created_at:
+                    type: number
+                    example: 1613779121
+                  filename:
+                    type: string
+                    example: puppy.jsonl
+                  id:
+                    type: string
+                    example: file-XjGxS3KTG0uNmNOK362iJua3
+                  object:
+                    type: string
+                    example: file
+                  purpose:
+                    type: string
+                    example: answers
+              examples:
+                Ok:
+                  value:
+                    bytes: 140
+                    created_at: 1613779121
+                    filename: puppy.jsonl
+                    id: file-XjGxS3KTG0uNmNOK362iJua3
+                    object: file
+                    purpose: answers
+  "/files/{file_id}":
+    get:
+      tags:
+        - Files
+      summary: Retrieve file
+      description: "Returns information about a specific file.\n\n[See More](https://beta.openai.com/docs/api-reference/files/retrieve)\n"
+      operationId: retrieveFile
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bytes:
+                    type: number
+                    example: 140
+                  created_at:
+                    type: number
+                    example: 1613779657
+                  filename:
+                    type: string
+                    example: puppy.jsonl
+                  id:
+                    type: string
+                    example: file-XjGxS3KTG0uNmNOK362iJua3
+                  object:
+                    type: string
+                    example: file
+                  purpose:
+                    type: string
+                    example: answers
+              examples:
+                Ok:
+                  value:
+                    bytes: 140
+                    created_at: 1613779657
+                    filename: puppy.jsonl
+                    id: file-XjGxS3KTG0uNmNOK362iJua3
+                    object: file
+                    purpose: answers
+    delete:
+      tags:
+        - Files
+      summary: Delete file
+      description: "Delete a file.\n\n[See More](https://beta.openai.com/docs/api-reference/files/delete)\n"
+      operationId: deleteFile
+      responses:
+        "204":
+          description: Removed
+          content:
+            text/plain:
+              examples:
+                Removed:
+                  value: ""
+    parameters:
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+  /fine-tunes:
+    get:
+      tags:
+        - Fine-tunes
+      summary: List fine-tunes
+      description: "List your organization's fine-tuning jobs"
+      operationId: listFineTunes
+      responses:
+        "200":
+          description: Ok
+          content:
+            text/plain:
+              examples:
+                Ok:
+                  value: "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"id\": \"ftjob-AF1WoRqd3aJAHsqc9NY7iL8F\",\n      \"object\": \"fine-tune\",\n      \"model\": \"curie\",\n      \"created_at\": 1614807352,\n      \"events\": [ { ... } ],\n      \"fine_tuned_model\": null,\n      \"hyperparams\": { ... },\n      \"organization_id\": \"org-hgpU6lQMdxgqSY8fmklyOcwP\",\n      \"result_files\": [],\n      \"status\": \"pending\",\n      \"validation_files\": [],\n      \"training_files\": [ { ... } ],\n      \"updated_at\": 1614807352,\n      \"user_id\": \"user-YEu26bFANWmICJuWuidWA31c\"\n    },\n    { ... },\n    { ... }\n  ]\n}\n"
+    post:
+      tags:
+        - Fine-tunes
+      summary: Create fine-tune
+      description: "Creates a job that fine-tunes a specified model from a given dataset.\r\n\r\nResponse includes details of the enqueued job including job status and the name of the fine-tuned models once complete.\r\n\r\n[Learn more about Fine-tuning](https://beta.openai.com/docs/guides/fine-tuning)"
+      operationId: createFineTune
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                training_file:
+                  type: string
+                  example: file-XGinujblHPwGLSztz8cPS8XY
+            example:
+              training_file: file-XGinujblHPwGLSztz8cPS8XY
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created_at:
+                    type: number
+                    example: 1614807352
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        created_at:
+                          type: number
+                          example: 1614807352
+                        level:
+                          type: string
+                          example: info
+                        message:
+                          type: string
+                          example: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object:
+                          type: string
+                          example: fine-tune-event
+                    example:
+                      - created_at: 1614807352
+                        level: info
+                        message: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object: fine-tune-event
+                  fine_tuned_model:
+                    nullable: true
+                    example: ~
+                  hyperparams:
+                    type: object
+                    properties:
+                      batch_size:
+                        type: number
+                        example: 4
+                      learning_rate_multiplier:
+                        type: number
+                        example: 0.1
+                      n_epochs:
+                        type: number
+                        example: 4
+                      prompt_loss_weight:
+                        type: number
+                        example: 0.1
+                      use_packing:
+                        type: boolean
+                        example: true
+                  id:
+                    type: string
+                    example: ftjob-AF1WoRqd3aJAHsqc9NY7iL8F
+                  model:
+                    type: string
+                    example: curie
+                  object:
+                    type: string
+                    example: fine-tune
+                  organization_id:
+                    type: string
+                    example: org-hgpU6lQMdxgqSY8fmklyOcwP
+                  result_files:
+                    type: array
+                    items: {}
+                    example: []
+                  status:
+                    type: string
+                    example: pending
+                  training_files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bytes:
+                          type: number
+                          example: 1547276
+                        created_at:
+                          type: number
+                          example: 1610062281
+                        filename:
+                          type: string
+                          example: my-data-train.jsonl
+                        id:
+                          type: string
+                          example: file-XGinujblHPwGLSztz8cPS8XY
+                        object:
+                          type: string
+                          example: file
+                        purpose:
+                          type: string
+                          example: fine-tune-train
+                    example:
+                      - bytes: 1547276
+                        created_at: 1610062281
+                        filename: my-data-train.jsonl
+                        id: file-XGinujblHPwGLSztz8cPS8XY
+                        object: file
+                        purpose: fine-tune-train
+                  updated_at:
+                    type: number
+                    example: 1614807352
+                  user_id:
+                    type: string
+                    example: user-YEu26bFANWmICJuWuidWA31c
+                  validation_files:
+                    type: array
+                    items: {}
+                    example: []
+              examples:
+                Ok:
+                  value:
+                    created_at: 1614807352
+                    events:
+                      - created_at: 1614807352
+                        level: info
+                        message: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object: fine-tune-event
+                    fine_tuned_model: ~
+                    hyperparams:
+                      batch_size: 4
+                      learning_rate_multiplier: 0.1
+                      n_epochs: 4
+                      prompt_loss_weight: 0.1
+                      use_packing: true
+                    id: ftjob-AF1WoRqd3aJAHsqc9NY7iL8F
+                    model: curie
+                    object: fine-tune
+                    organization_id: org-hgpU6lQMdxgqSY8fmklyOcwP
+                    result_files: []
+                    status: pending
+                    training_files:
+                      - bytes: 1547276
+                        created_at: 1610062281
+                        filename: my-data-train.jsonl
+                        id: file-XGinujblHPwGLSztz8cPS8XY
+                        object: file
+                        purpose: fine-tune-train
+                    updated_at: 1614807352
+                    user_id: user-YEu26bFANWmICJuWuidWA31c
+                    validation_files: []
+  "/fine-tunes/{fine_tune_id}":
+    get:
+      tags:
+        - Fine-tunes
+      summary: Retrieve fine-tune
+      description: "List your organization's fine-tuning jobs"
+      operationId: retrieveFineTune
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created_at:
+                    type: number
+                    example: 1614807352
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        created_at:
+                          type: number
+                          example: 1614807352
+                        level:
+                          type: string
+                          example: info
+                        message:
+                          type: string
+                          example: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object:
+                          type: string
+                          example: fine-tune-event
+                    example:
+                      - created_at: 1614807352
+                        level: info
+                        message: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object: fine-tune-event
+                      - created_at: 1614807356
+                        level: info
+                        message: Job started.
+                        object: fine-tune-event
+                      - created_at: 1614807861
+                        level: info
+                        message: "Uploaded snapshot: curie:ft-acmeco-2021-03-03-21-44-20."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: "Uploaded result files: file-QQm6ZpqdNwAaVC3aSz5sWwLT."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: Job succeeded.
+                        object: fine-tune-event
+                  fine_tuned_model:
+                    type: string
+                    example: "curie:ft-acmeco-2021-03-03-21-44-20"
+                  hyperparams:
+                    type: object
+                    properties:
+                      batch_size:
+                        type: number
+                        example: 4
+                      learning_rate_multiplier:
+                        type: number
+                        example: 0.1
+                      n_epochs:
+                        type: number
+                        example: 4
+                      prompt_loss_weight:
+                        type: number
+                        example: 0.1
+                      use_packing:
+                        type: boolean
+                        example: true
+                  id:
+                    type: string
+                    example: ftjob-AF1WoRqd3aJAHsqc9NY7iL8F
+                  model:
+                    type: string
+                    example: curie
+                  object:
+                    type: string
+                    example: fine-tune
+                  organization_id:
+                    type: string
+                    example: org-hgpU6lQMdxgqSY8fmklyOcwP
+                  result_files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bytes:
+                          type: number
+                          example: 81509
+                        created_at:
+                          type: number
+                          example: 1614807863
+                        filename:
+                          type: string
+                          example: compiled_results.csv
+                        id:
+                          type: string
+                          example: file-QQm6ZpqdNwAaVC3aSz5sWwLT
+                        object:
+                          type: string
+                          example: file
+                        purpose:
+                          type: string
+                          example: fine-tune-results
+                    example:
+                      - bytes: 81509
+                        created_at: 1614807863
+                        filename: compiled_results.csv
+                        id: file-QQm6ZpqdNwAaVC3aSz5sWwLT
+                        object: file
+                        purpose: fine-tune-results
+                  status:
+                    type: string
+                    example: succeeded
+                  training_files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bytes:
+                          type: number
+                          example: 1547276
+                        created_at:
+                          type: number
+                          example: 1610062281
+                        filename:
+                          type: string
+                          example: my-data-train.jsonl
+                        id:
+                          type: string
+                          example: file-XGinujblHPwGLSztz8cPS8XY
+                        object:
+                          type: string
+                          example: file
+                        purpose:
+                          type: string
+                          example: fine-tune-train
+                    example:
+                      - bytes: 1547276
+                        created_at: 1610062281
+                        filename: my-data-train.jsonl
+                        id: file-XGinujblHPwGLSztz8cPS8XY
+                        object: file
+                        purpose: fine-tune-train
+                  updated_at:
+                    type: number
+                    example: 1614807865
+                  user_id:
+                    type: string
+                    example: user-YEu26bFANWmICJuWuidWA31c
+                  validation_files:
+                    type: array
+                    items: {}
+                    example: []
+              examples:
+                Ok:
+                  value:
+                    created_at: 1614807352
+                    events:
+                      - created_at: 1614807352
+                        level: info
+                        message: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object: fine-tune-event
+                      - created_at: 1614807356
+                        level: info
+                        message: Job started.
+                        object: fine-tune-event
+                      - created_at: 1614807861
+                        level: info
+                        message: "Uploaded snapshot: curie:ft-acmeco-2021-03-03-21-44-20."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: "Uploaded result files: file-QQm6ZpqdNwAaVC3aSz5sWwLT."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: Job succeeded.
+                        object: fine-tune-event
+                    fine_tuned_model: "curie:ft-acmeco-2021-03-03-21-44-20"
+                    hyperparams:
+                      batch_size: 4
+                      learning_rate_multiplier: 0.1
+                      n_epochs: 4
+                      prompt_loss_weight: 0.1
+                      use_packing: true
+                    id: ftjob-AF1WoRqd3aJAHsqc9NY7iL8F
+                    model: curie
+                    object: fine-tune
+                    organization_id: org-hgpU6lQMdxgqSY8fmklyOcwP
+                    result_files:
+                      - bytes: 81509
+                        created_at: 1614807863
+                        filename: compiled_results.csv
+                        id: file-QQm6ZpqdNwAaVC3aSz5sWwLT
+                        object: file
+                        purpose: fine-tune-results
+                    status: succeeded
+                    training_files:
+                      - bytes: 1547276
+                        created_at: 1610062281
+                        filename: my-data-train.jsonl
+                        id: file-XGinujblHPwGLSztz8cPS8XY
+                        object: file
+                        purpose: fine-tune-train
+                    updated_at: 1614807865
+                    user_id: user-YEu26bFANWmICJuWuidWA31c
+                    validation_files: []
+    parameters:
+      - name: fine_tune_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: ftjob-AF1WoRqd3aJAHsqc9NY7iL8F
+        description: "(Required) The ID of the fine-tune job to cancel\n\n"
+  "/fine-tunes/{fine_tune_id}/cancel":
+    post:
+      tags:
+        - Fine-tunes
+      summary: Cancel fine-tune
+      description: "Creates a job that fine-tunes a specified model from a given dataset.\r\n\r\nResponse includes details of the enqueued job including job status and the name of the fine-tuned models once complete.\r\n\r\n[Learn more about Fine-tuning](https://beta.openai.com/docs/guides/fine-tuning)"
+      operationId: cancelFineTune
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                training_file:
+                  type: string
+                  example: file-XGinujblHPwGLSztz8cPS8XY
+            example:
+              training_file: file-XGinujblHPwGLSztz8cPS8XY
+      responses:
+        "200":
+          description: ""
+    parameters:
+      - name: fine_tune_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: ftjob-AF1WoRqd3aJAHsqc9NY7iL8F
+        description: "(Required) The ID of the fine-tune job to cancel\n"
+  "/fine-tunes/{fine_tune_id}/events":
+    get:
+      tags:
+        - Fine-tunes
+      summary: List fine-tune events
+      description: "List your organization's fine-tuning jobs"
+      operationId: listFineTuneEvents
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        created_at:
+                          type: number
+                          example: 1614807352
+                        level:
+                          type: string
+                          example: info
+                        message:
+                          type: string
+                          example: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object:
+                          type: string
+                          example: fine-tune-event
+                    example:
+                      - created_at: 1614807352
+                        level: info
+                        message: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object: fine-tune-event
+                      - created_at: 1614807356
+                        level: info
+                        message: Job started.
+                        object: fine-tune-event
+                      - created_at: 1614807861
+                        level: info
+                        message: "Uploaded snapshot: curie:ft-acmeco-2021-03-03-21-44-20."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: "Uploaded result files: file-QQm6ZpqdNwAaVC3aSz5sWwLT."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: Job succeeded.
+                        object: fine-tune-event
+                  object:
+                    type: string
+                    example: list
+              examples:
+                Ok:
+                  value:
+                    data:
+                      - created_at: 1614807352
+                        level: info
+                        message: "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                        object: fine-tune-event
+                      - created_at: 1614807356
+                        level: info
+                        message: Job started.
+                        object: fine-tune-event
+                      - created_at: 1614807861
+                        level: info
+                        message: "Uploaded snapshot: curie:ft-acmeco-2021-03-03-21-44-20."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: "Uploaded result files: file-QQm6ZpqdNwAaVC3aSz5sWwLT."
+                        object: fine-tune-event
+                      - created_at: 1614807864
+                        level: info
+                        message: Job succeeded.
+                        object: fine-tune-event
+                    object: list
+    parameters:
+      - name: fine_tune_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: ftjob-AF1WoRqd3aJAHsqc9NY7iL8F
+        description: "(Required) The ID of the fine-tune job to cancel\n\n"
+tags:
+  - name: Engines
+  - name: Completions
+  - name: Searches
+  - name: Classifications
+  - name: Answers
+  - name: Files
+  - name: Fine-tunes
